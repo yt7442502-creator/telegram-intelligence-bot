@@ -12,27 +12,12 @@ jobs:
     steps:
       - name: Generate Report with Gemini
         run: |
-          PROMPT="Create a Daily Hinglish Intelligence Report.
-
-          Cover:
-          - Politics
-          - Business
-          - Finance
-          - Cryptocurrency
-          - Economy
-          - Sports
-          - Technology
-          - Science
-          - Health
-          - Entertainment
-          - Anime & Manga
-          - Gaming
-          - World News
+          PROMPT="Create a Daily Hinglish Intelligence Report covering Politics, Business, Finance, Crypto, Economy, Sports, Technology, Science, Health, Entertainment, Anime, Gaming and World News.
 
           Use only major verified developments from the last 24 hours.
 
           Format:
-          🔥 Headline:
+          🔥 Headline
           📌 Kya Hua?
           🤔 Kyu Important Hai?
 
@@ -48,8 +33,8 @@ jobs:
 
           echo "$TEXT" > report.txt
 
-           - name: Send Telegram Message
-          run: |
+      - name: Send Telegram Message
+        run: |
           split -b 3500 report.txt chunk_
 
           for file in chunk_*; do
