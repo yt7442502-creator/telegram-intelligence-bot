@@ -1,0 +1,60 @@
+```yaml
+name: Daily Intelligence Report
+
+on:
+  schedule:
+    - cron: '30 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate Report with Gemini
+        run: |
+          PROMPT="Create a Daily Hinglish Intelligence Report.
+
+          Cover:
+          - Politics
+          - Business
+          - Finance
+          - Cryptocurrency
+          - Economy
+          - Sports
+          - Technology
+          - Science
+          - Health
+          - Entertainment
+          - Anime & Manga
+          - Gaming
+          - World News
+
+          Use only major verified developments from the last 24 hours.
+
+          Format:
+          🔥 Headline:
+          📌 Kya Hua?
+          🤔 Kyu Important Hai?
+
+          Keep the report concise."
+
+          RESPONSE=$(curl -s \
+          -H "Content-Type: application/json" \
+          -X POST \
+          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${{ secrets.GEMINI_API_KEY }}" \
+          -d "{\"contents\":[{\"parts\":[{\"text\":\"$PROMPT\"}]}]}")
+
+          TEXT=$(echo "$RESPONSE" | jq -r '.candidates[0].content.parts[0].text')
+
+          echo "$TEXT" > report.txt
+
+      - name: Send Telegram Message
+        run: |
+          TEXT=$(cat report.txt)
+
+          curl -s -X POST \
+          "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+          -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+          --data-urlencode text="$TEXT"
+```
