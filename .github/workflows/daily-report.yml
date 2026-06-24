@@ -48,11 +48,17 @@ jobs:
 
           echo "$TEXT" > report.txt
 
-      - name: Send Telegram Message
-        run: |
-          TEXT=$(cat report.txt)
+           - name: Send Telegram Message
+          run: |
+          split -b 3500 report.txt chunk_
 
-          curl -s -X POST \
-          "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
-          -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
-          --data-urlencode text="$TEXT"
+          for file in chunk_*; do
+            TEXT=$(cat "$file")
+
+            curl -s -X POST \
+            "https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage" \
+            -d chat_id="${{ secrets.TELEGRAM_CHAT_ID }}" \
+            --data-urlencode text="$TEXT"
+
+            sleep 2
+          done
